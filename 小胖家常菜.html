@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小胖家常菜</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #e0f7e0;
+            background-image: url('https://www.transparenttextures.com/patterns/light-green.png');
+            color: #2e7d32;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 20px 0;
+            color: #1b5e20;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        #menu-container {
+            font-size: 2rem;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 800px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #menu-text {
+            position: absolute;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        #menu-text span {
+            display: block;
+            margin: 10px 0;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .button-container button {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-container button:hover {
+            background-color: #388e3c;
+        }
+
+        .speed-control {
+            margin: 10px 0;
+            width: 200px;
+        }
+
+        #note {
+            font-size: 1rem;
+            color: #2e7d32;
+            margin-top: 20px;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            color: #d32f2f;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>欢迎来到“小胖家常菜”🍲</h1>
+    <div id="menu-container">
+        <div id="menu-text">
+            <span id="meat-menu">辣椒炒肉</span>
+            <span id="veg-menu">西红柿炒鸡蛋</span>
+            <span id="soup-menu">鸡蛋汤</span>
+        </div>
+    </div>
+    <div class="button-container">
+        <button id="start-meat">开始抽荤菜</button>
+        <button id="start-veg">开始抽素菜</button>
+        <button id="start-soup">开始抽汤菜</button>
+    </div>
+    <div class="button-container">
+        <input type="range" class="speed-control" id="speed-meat" min="1" max="10" value="5">
+        <input type="range" class="speed-control" id="speed-veg" min="1" max="10" value="5">
+        <input type="range" class="speed-control" id="speed-soup" min="1" max="10" value="5">
+    </div>
+    <div id="note">
+        在这里，我们用随机的方式帮你解决“今天吃什么”的烦恼。无论是和朋友聚餐，还是独自享受美食，只需轻轻一点，就能随机生成三道菜品，让你的每一次用餐都充满惊喜！😋🍴
+    </div>
+
+    <script>
+        const meatMenu = [
+            "辣椒炒肉", "小炒黄牛肉", "腊牛肉炒冬笋", "腊香肠炒素菜", "萍乡小炒肉", "红烧鱼块", 
+            "腊鸡炒干豆角", "红烧腊鱼", "土豆炖排骨", "排骨炖青菜", "土豆薄片炒腊肉", 
+            "家常豆腐", "火腿炒鸡蛋", "香菇炒肉", "花菜炒肉", "秋葵炒肉", "红烧鸡爪", 
+            "红烧排骨", "油焖大虾", "辣椒炒腊肉"
+        ];
+
+        const vegMenu = [
+            "西红柿炒鸡蛋", "莴笋炒瘦肉", "清炒杭白菜", "清炒黄瓜丝", "清炒胡萝卜丝", 
+            "凉拌三丝", "清炒土豆薄片", "麻婆豆腐", "清炒菜芯", "清炒太湖菜", 
+            "清炒小碗豆", "素炒四季豆", "茄子炒豆角", "辣椒炒秋葵", "醋溜土豆丝", 
+            "煎辣椒", "辣椒炒鸡蛋", "韭黄炒鸡蛋"
+        ];
+
+        const soupMenu = [
+            "鸡蛋汤", "瘦肉汤", "鸡蛋瘦肉汤", "鸡蛋青菜汤", "牛肉青菜汤", 
+            "桂圆排骨汤", "玉米排骨汤", "墨鱼排骨汤", "黄花菜鸡蛋汤"
+        ];
+
+        const meatMenuElement = document.getElementById('meat-menu');
+        const vegMenuElement = document.getElementById('veg-menu');
+        const soupMenuElement = document.getElementById('soup-menu');
+        const startMeatButton = document.getElementById('start-meat');
+        const startVegButton = document.getElementById('start-veg');
+        const startSoupButton = document.getElementById('start-soup');
+        const speedMeatControl = document.getElementById('speed-meat');
+        const speedVegControl = document.getElementById('speed-veg');
+        const speedSoupControl = document.getElementById('speed-soup');
+
+        let meatIntervalId;
+        let vegIntervalId;
+        let soupIntervalId;
+        let isMeatRunning = false;
+        let isVegRunning = false;
+        let isSoupRunning = false;
+
+        function getRandomItem(menu) {
+            return menu[Math.floor(Math.random() * menu.length)];
+        }
+
+        function startRolling(menu, element, intervalId, speedControl, isRunning) {
+            if (isRunning) {
+                clearInterval(intervalId);
+                isRunning = false;
+                element.classList.add('highlight');
+                return { intervalId: null, isRunning: false };
+            } else {
+                isRunning = true;
+                const speed = 1000 / speedControl.value;
+                intervalId = setInterval(() => {
+                    element.textContent = getRandomItem(menu);
+                }, speed);
+                element.classList.remove('highlight');
+                return { intervalId, isRunning };
+            }
+        }
+
+        startMeatButton.addEventListener('click', () => {
+            const result = startRolling(meatMenu, meatMenuElement, meatIntervalId, speedMeatControl, isMeatRunning);
+            meatIntervalId = result.intervalId;
+            isMeatRunning = result.isRunning;
+            startMeatButton.textContent = isMeatRunning ? "暂停" : "开始抽荤菜";
+        });
+
+        startVegButton.addEventListener('click', () => {
+            const result = startRolling(vegMenu, vegMenuElement, vegIntervalId, speedVegControl, isVegRunning);
+            vegIntervalId = result.intervalId;
+            isVegRunning = result.isRunning;
+            startVegButton.textContent = isVegRunning ? "暂停" : "开始抽素菜";
+        });
+
+        startSoupButton.addEventListener('click', () => {
+            const result = startRolling(soupMenu, soupMenuElement, soupIntervalId, speedSoupControl, isSoupRunning);
+            soupIntervalId = result.intervalId;
+            isSoupRunning = result.isRunning;
+            startSoupButton.textContent = isSoupRunning ? "暂停" : "开始抽汤菜";
+        });
+
+        speedMeatControl.addEventListener('input', () => {
+            if (isMeatRunning) {
+                clearInterval(meatIntervalId);
+                const speed = 1000 / speedMeatControl.value;
+                meatIntervalId = setInterval(() => {
+                    meatMenuElement.textContent = getRandomItem(meatMenu);
+                }, speed);
+            }
+        });
+
+        speedVegControl.addEventListener('input', () => {
+            if (isVegRunning) {
+                clearInterval(vegIntervalId);
+                const speed = 1000 / speedVegControl.value;
+                vegIntervalId = setInterval(() => {
+                    vegMenuElement.textContent = getRandomItem(vegMenu);
+                }, speed);
+            }
+        });
+
+        speedSoupControl.addEventListener('input', () => {
+            if (isSoupRunning) {
+                clearInterval(soupIntervalId);
+                const speed = 1000 / speedSoupControl.value;
+                soupIntervalId = setInterval(() => {
+                    soupMenuElement.textContent = getRandomItem(soupMenu);
+                }, speed);
+            }
+        });
+    </script>
+</body>
+</html>
